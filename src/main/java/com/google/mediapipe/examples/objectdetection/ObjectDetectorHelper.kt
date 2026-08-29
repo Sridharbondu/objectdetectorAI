@@ -280,6 +280,22 @@ class ObjectDetectorHelper(
         val finishTimeMs = SystemClock.uptimeMillis()
         val inferenceTime = finishTimeMs - result.timestampMs()
 
+        // Show Toast when high confidence detection
+        result.detections().firstOrNull()?.let { detection ->
+            val label = detection.categories().firstOrNull()?.categoryName() ?: "Unknown"
+            val score = detection.categories().firstOrNull()?.score() ?: 0f
+
+            if (score > 0.7f) {
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    android.widget.Toast.makeText(
+                        context,
+                        "Detected: $label (${(score * 100).toInt()}%)",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
         objectDetectorListener?.onResults(
             ResultBundle(
                 listOf(result),
